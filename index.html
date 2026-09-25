@@ -1,5 +1,85 @@
 <!doctype html>
 <html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1220"><meta name="description" content="NORTHSTAR: produto de analytics para avaliar retorno, qualidade e custo de copilotos de IA. Dashboard de demonstração com dados sintéticos e contexto real da Eurostat.">
+  <title>NORTHSTAR | AI impact observatory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="#overview"><span class="brand-icon"><i></i><i></i><i></i><i></i></span><span>NORTHSTAR<span class="brand-dot">.</span></span></a>
+      <div class="side-caption">WORKSPACE</div>
+      <button class="workspace"><span class="workspace-mark">N</span><span><b>Northstar Support</b><small>AI operations</small></span><span class="caret">⌄</span></button>
+      <div class="side-caption nav-caption">PRODUCT INTELLIGENCE</div>
+      <nav aria-label="Navegação principal">
+        <a class="nav-link active" href="#overview"><span class="nav-symbol">◫</span>Overview</a>
+        <a class="nav-link" href="#economics"><span class="nav-symbol">◉</span>Unit economics</a>
+        <a class="nav-link" href="#quality"><span class="nav-symbol">⌁</span>Quality & trust</a>
+        <a class="nav-link" href="#market"><span class="nav-symbol">↗</span>Market signal</a>
+      </nav>
+      <div class="side-lower">
+        <div class="source-card"><div class="source-icon">✦</div><div><b>Evidence mode</b><p>Benchmarks are sourced. Product telemetry is simulated.</p></div></div>
+        <div class="profile"><div class="avatar">JL</div><div><b>João Luis</b><small>Data & product analytics</small></div><span class="profile-more">•••</span></div>
+      </div>
+    </aside>
+
+    <main class="main" id="overview">
+      <header class="topbar"><div class="crumb">Workspace <span>/</span> <b>AI impact observatory</b></div><div class="top-actions"><span class="live-pill"><i></i> DEMO ENVIRONMENT</span><button class="icon-btn" aria-label="Notifications">♧</button><button class="help-btn">Docs <span>↗</span></button></div></header>
+
+      <section class="intro">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span>AI PRODUCT INTELLIGENCE <span class="eyebrow-dot">·</span> ISSUE 04 / 2026</div>
+          <h1>Make AI earn<br><em>its place in prod.</em></h1>
+          <p class="intro-copy">A decision cockpit for the question every AI team faces: is the copilot creating value users can trust?</p>
+        </div>
+        <div class="intro-right"><div class="release-tag"><span class="release-dot"></span><span><b>Release 2.4</b><small>canary · 20% traffic</small></span><span class="release-arrow">↗</span></div><div class="intro-actions"><button class="button button-quiet" id="export-button">↓ Export CSV</button><button class="button button-primary" id="report-button">Read the signal <span>↘</span></button></div></div>
+      </section>
+
+      <section class="control-row" aria-label="Dashboard filters"><div class="filter-context"><span class="filter-spark">✦</span><span>PRODUCTION COHORT</span><span class="divider"></span><span id="period-label">Last 90 days</span></div><div class="filters"><label for="period">Window</label><select id="period"><option value="30">30 days</option><option value="90" selected>90 days</option><option value="all">All time</option></select><label for="segment">Queue</label><select id="segment"><option value="all">All queues</option><option value="billing">Billing</option><option value="account">Account access</option><option value="orders">Orders & delivery</option><option value="technical">Technical</option></select><button id="reset" class="reset" title="Reset filters" aria-label="Reset filters">↺</button></div></section>
+
+      <section class="kpis" aria-label="Key performance indicators">
+        <article class="kpi-card"><div class="kpi-header"><span>AI resolution rate</span><span class="kpi-badge mint">↗</span></div><div class="kpi-value" id="kpi-resolution">—</div><div class="kpi-footer"><span>resolved without agent</span><span class="delta positive" id="delta-resolution">—</span></div><div class="microbars mint-bars" aria-hidden="true"></div></article>
+        <article class="kpi-card"><div class="kpi-header"><span>Cost / resolved case</span><span class="kpi-badge blue">＄</span></div><div class="kpi-value" id="kpi-cost">—</div><div class="kpi-footer"><span>AI + human handling</span><span class="delta positive" id="delta-cost">—</span></div><div class="microbars blue-bars" aria-hidden="true"></div></article>
+        <article class="kpi-card"><div class="kpi-header"><span>Grounded answer rate</span><span class="kpi-badge lilac">⌁</span></div><div class="kpi-value" id="kpi-grounded">—</div><div class="kpi-footer"><span>citation-backed responses</span><span class="delta positive" id="delta-grounded">—</span></div><div class="microbars lilac-bars" aria-hidden="true"></div></article>
+        <article class="kpi-card highlight-kpi"><div class="kpi-header"><span>Net monthly value</span><span class="kpi-badge amber">✳</span></div><div class="kpi-value" id="kpi-value">—</div><div class="kpi-footer"><span>vs. human-only baseline</span><span class="delta positive">▲ positive ROI</span></div><div class="microbars amber-bars" aria-hidden="true"></div></article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel trend-panel">
+          <div class="panel-head"><div><div class="section-kicker">OUTCOME OVER TIME</div><h2>Efficiency is up. Is trust keeping pace?</h2></div><button class="more-btn" aria-label="More chart options">•••</button></div>
+          <div class="chart-legend"><span><i class="legend-line mint-line"></i>AI resolution</span><span><i class="legend-line blue-line"></i>Grounded answer</span><span><i class="legend-line dash-line"></i>Quality floor · 90%</span></div>
+          <div class="trend-chart"><div class="axis-labels"><span>100%</span><span>90%</span><span>80%</span><span>70%</span></div><div class="chart-stage"><div class="gridline g1"></div><div class="gridline g2"></div><div class="gridline g3"></div><div class="gridline g4"></div><svg id="trend-svg" viewBox="0 0 800 250" preserveAspectRatio="none" role="img" aria-label="Weekly AI resolution and grounded answer rates"></svg><div class="x-labels" id="x-labels"></div></div></div>
+          <div class="chart-callout"><span class="callout-burst">✦</span><p id="trend-insight">Loading product signal…</p><a href="#quality">Explore quality <span>↗</span></a></div>
+        </article>
+
+        <article class="panel release-panel" id="quality">
+          <div class="panel-head"><div><div class="section-kicker">RELEASE GATE · V2.4 CANARY</div><h2>Quality before scale</h2></div><span class="gate-status" id="gate-status"><i></i> CHECKING</span></div>
+          <div class="gate-score"><div class="score-ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-track" cx="50" cy="50" r="43"/><circle class="ring-value" cx="50" cy="50" r="43"/></svg><div><b id="quality-score">—</b><small>quality index</small></div></div><div class="gate-copy"><b id="gate-title">Checking guardrails</b><p id="gate-copy">Release decision based on quality, latency and cost thresholds.</p></div></div>
+          <div class="guardrails"><div class="guard-row"><span>Grounded answers</span><div class="guard-track"><i id="guard-grounded"></i></div><b id="guard-grounded-value">—</b></div><div class="guard-row"><span>Human handoff</span><div class="guard-track"><i id="guard-handoff"></i></div><b id="guard-handoff-value">—</b></div><div class="guard-row"><span>p95 latency</span><div class="guard-track"><i id="guard-latency"></i></div><b id="guard-latency-value">—</b></div></div>
+          <button class="gate-button" id="gate-button">View release recommendation <span>↗</span></button>
+        </article>
+      </section>
+
+      <section class="content-grid lower-grid" id="economics">
+        <article class="panel economics-panel"><div class="panel-head"><div><div class="section-kicker">UNIT ECONOMICS</div><h2>More resolved. Less spent.</h2></div><span class="period-chip">USD · MONTHLY RUN RATE</span></div><div class="economics-body"><div class="econ-chart"><div class="econ-axis"><span>$60k</span><span>$40k</span><span>$20k</span><span>$0</span></div><div class="econ-stage"><div class="gridline g1"></div><div class="gridline g2"></div><div class="gridline g3"></div><div class="gridline g4"></div><div class="bars-wrap" id="bars-wrap"></div></div></div><div class="econ-summary"><div class="summary-item"><span>Human-only baseline</span><b id="baseline-value">—</b></div><div class="summary-item"><span>AI-assisted run rate</span><b id="ai-runrate">—</b></div><div class="summary-item saved"><span>Monthly value created</span><b id="saved-value">—</b></div><div class="formula-note">Net value = avoided handling cost − model + platform cost</div></div></div><div class="econ-footer"><span><i class="legend-square gray-square"></i>Support labor</span><span><i class="legend-square mint-square"></i>AI + human</span><span class="econ-footnote">Simulated operating data · scenario model</span></div></article>
+
+        <article class="panel opportunity-panel"><div class="panel-head"><div><div class="section-kicker">SCENARIO PLANNER</div><h2>Find the break-even point</h2></div><span class="scenario-icon">↗</span></div><p class="scenario-copy">Adjust monthly case volume to model the value of an AI assisted support queue.</p><div class="slider-row"><label for="volume-slider">Cases / month</label><output id="volume-output" for="volume-slider">25,000</output></div><input id="volume-slider" type="range" min="5000" max="80000" step="1000" value="25000"><div class="slider-ticks"><span>5k</span><span>80k</span></div><div class="scenario-result"><div><span>Projected monthly value</span><b id="scenario-value">—</b></div><div class="scenario-arrow">↗</div></div><p class="scenario-footnote">Illustrative estimate. Uses demo unit costs and resolution rates.</p></article>
+      </section>
+
+      <section class="panel market-panel" id="market"><div class="market-copy"><div class="section-kicker">THE MARKET SIGNAL · EUROSTAT 2025</div><h2>AI is moving from experiment<br>to operating model.</h2><p>19.95% of EU enterprises used AI in 2025. Adoption is widening, but the readiness gap is real. Product teams that can prove value and reliability will scale faster.</p><a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Use_of_artificial_intelligence_in_enterprises" target="_blank" rel="noreferrer">Explore the source data <span>↗</span></a></div><div class="market-stats"><div class="market-stat"><span>EU enterprises using AI</span><b>19.95<small>%</small></b><div class="market-bar"><i style="width:20%"></i></div><small>+6.47 percentage points vs 2024</small></div><div class="market-stat"><span>Information & communication</span><b>62.52<small>%</small></b><div class="market-bar"><i style="width:63%"></i></div><small>Highest adoption of all sectors</small></div><div class="market-stat"><span>Large vs. small businesses</span><b>55<small>%</small> <em>/</em> 17<small>%</small></b><div class="market-bar dual"><i style="width:55%"></i><i style="width:17%"></i></div><small>Adoption still varies by company size</small></div></div><div class="market-source">Source: Eurostat, Use of AI in enterprises · 2025 data · EU companies with 10+ employees</div></section>
+
+      <footer class="footer"><div><span class="footer-mark">✳</span> NORTHSTAR <span class="footer-divider">/</span> BUILT FOR DECISIONS, NOT JUST REPORTING</div><div>Portfolio case study <span class="footer-divider">·</span> <a href="https://github.com/joao-luisz/ponte-inclusao-social" target="_blank" rel="noreferrer">Source code ↗</a></div></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
+<!doctype html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
