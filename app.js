@@ -93,7 +93,8 @@ function render() {
   const scenarioVolume = Number(slider.value);
   const business = valueModel(scenarioVolume, res / 100, modelCost);
   const costPerCase = business.aiCost / Math.max(1, scenarioVolume * res / 100);
-  const previousUnitCost = prior ? valueModel(scenarioVolume, prior.resolution / 100, prior.modelCost).aiCost / Math.max(1, scenarioVolume * prior.resolution / 100) : costPerCase;
+  const latestUnitCost = latest ? valueModel(scenarioVolume, latest.resolution / 100, latest.modelCost).aiCost / Math.max(1, scenarioVolume * latest.resolution / 100) : costPerCase;
+  const previousUnitCost = prior ? valueModel(scenarioVolume, prior.resolution / 100, prior.modelCost).aiCost / Math.max(1, scenarioVolume * prior.resolution / 100) : latestUnitCost;
   const quality = Math.round(grounded * .55 + res * .3 + (100 - handoff) * .15);
 
   byId("kpi-resolution").textContent = percent(res);
@@ -101,7 +102,7 @@ function render() {
   byId("kpi-grounded").textContent = percent(grounded);
   byId("kpi-value").textContent = money.format(business.net);
   setDelta("delta-resolution", percentChange(last(activeRows, "resolution"), prior?.resolution), false, last(activeRows, "resolution"), prior?.resolution);
-  setDelta("delta-cost", percentChange(costPerCase, previousUnitCost, true), true, costPerCase, previousUnitCost);
+  setDelta("delta-cost", percentChange(latestUnitCost, previousUnitCost, true), true, latestUnitCost, previousUnitCost);
   setDelta("delta-grounded", percentChange(last(activeRows, "grounded"), prior?.grounded), false, latest?.grounded, prior?.grounded);
   byId("period-label").textContent = period.value === "all" ? "All time" : `Last ${period.value} days`;
   renderChart(activeRows);
@@ -140,13 +141,12 @@ byId("reset").addEventListener("click", () => { period.value = "90"; segment.val
 byId("export-button").addEventListener("click", exportRows);
 byId("report-button").addEventListener("click", () => document.getElementById("market").scrollIntoView({ behavior: "smooth" }));
 byId("gate-button").addEventListener("click", () => toast(byId("gate-title").textContent + " · review quality, handoff and p95 latency before increasing traffic."));
-fetch("data/cohort.json").then(response => {
-  if (!response.ok) throw new Error("Could not load the demo cohort");
-  return response.json();
-}).then(payload => { series = payload.rows; render(); }).catch(() => {
+if (window.NORTHSTAR_COHORT?.rows?.length) {
+  series = window.NORTHSTAR_COHORT.rows;
+} else {
   series = Array.from({ length: 13 }, (_, index) => {
     const wave = Math.sin(index * .78) * 1.25;
     return { week: index, label: `W${String(index + 1).padStart(2, "0")}`, volume: 4150 + index * 126, resolution: 62.5 + index * .88 + wave, grounded: 94.2 - index * .09 + Math.sin(index * .62) * .42, handoff: 37.8 - index * .69 + Math.cos(index * .61) * .75, latency: 1.94 - index * .025 + Math.cos(index * .82) * .07, modelCost: .14 - index * .001 + Math.sin(index * .5) * .008, queue: "all" };
   });
-  render();
-});
+}
+render();
