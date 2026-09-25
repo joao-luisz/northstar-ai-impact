@@ -71,107 +71,10 @@
 
       <section class="panel market-panel" id="market"><div class="market-copy"><div class="section-kicker">THE MARKET SIGNAL · EUROSTAT 2025</div><h2>AI is moving from experiment<br>to operating model.</h2><p>19.95% of EU enterprises used AI in 2025. Adoption is widening, but the readiness gap is real. Product teams that can prove value and reliability will scale faster.</p><a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Use_of_artificial_intelligence_in_enterprises" target="_blank" rel="noreferrer">Explore the source data <span>↗</span></a></div><div class="market-stats"><div class="market-stat"><span>EU enterprises using AI</span><b>19.95<small>%</small></b><div class="market-bar"><i style="width:20%"></i></div><small>+6.47 percentage points vs 2024</small></div><div class="market-stat"><span>Information & communication</span><b>62.52<small>%</small></b><div class="market-bar"><i style="width:63%"></i></div><small>Highest adoption of all sectors</small></div><div class="market-stat"><span>Large vs. small businesses</span><b>55<small>%</small> <em>/</em> 17<small>%</small></b><div class="market-bar dual"><i style="width:55%"></i><i style="width:17%"></i></div><small>Adoption still varies by company size</small></div></div><div class="market-source">Source: Eurostat, Use of AI in enterprises · 2025 data · EU companies with 10+ employees</div></section>
 
-      <footer class="footer"><div><span class="footer-mark">✳</span> NORTHSTAR <span class="footer-divider">/</span> BUILT FOR DECISIONS, NOT JUST REPORTING</div><div>Portfolio case study <span class="footer-divider">·</span> <a href="https://github.com/joao-luisz/ponte-inclusao-social" target="_blank" rel="noreferrer">Source code ↗</a></div></footer>
+      <footer class="footer"><div><span class="footer-mark">✳</span> NORTHSTAR <span class="footer-divider">/</span> BUILT FOR DECISIONS, NOT JUST REPORTING</div><div>Portfolio case study <span class="footer-divider">·</span> <a href="https://github.com/joao-luisz/northstar-ai-impact" target="_blank" rel="noreferrer">Source code ↗</a></div></footer>
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
 </body>
-</html>
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#111c1a" />
-    <meta name="description" content="Ponte transforma dados operacionais sintéticos em prioridades de atendimento social. Projeto de portfólio de João Luis." />
-    <title>Ponte | Inteligência de inclusão social</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <a class="brand" href="#inicio" aria-label="Ponte, início">
-          <span class="brand-mark"><i></i><i></i><i></i></span>
-          <span>PONTE<span class="brand-period">.</span></span>
-        </a>
-        <div class="workspace-label">WORKSPACE</div>
-        <button class="workspace-switch"><span class="workspace-avatar">D</span><span><b>Município demo</b><small>Operação social</small></span><span class="chevron">⌄</span></button>
-        <div class="nav-label">ANÁLISE</div>
-        <nav aria-label="Navegação principal">
-          <a class="nav-item active" href="#visao"><span class="nav-icon">◫</span>Visão geral</a>
-          <a class="nav-item" href="#prioridades"><span class="nav-icon">◎</span>Prioridades <span class="nav-count" id="priority-count">04</span></a>
-          <a class="nav-item" href="#qualidade"><span class="nav-icon">⌁</span>Qualidade dos dados</a>
-        </nav>
-        <div class="sidebar-bottom">
-          <div class="privacy-card"><span class="privacy-icon">✳</span><div><b>Privacidade primeiro</b><p>Este ambiente usa somente dados sintéticos.</p></div></div>
-          <div class="user-profile"><div class="user-avatar">JL</div><div><b>João Luis</b><small>Analista de dados</small></div><button aria-label="Abrir opções do perfil">•••</button></div>
-        </div>
-      </aside>
-
-      <main id="inicio" class="main-content">
-        <header class="topbar">
-          <div class="breadcrumbs">Projetos <span>/</span> <b>Inclusão produtiva</b></div>
-          <div class="topbar-right"><span class="demo-pill"><i></i> AMBIENTE DEMONSTRAÇÃO</span><button class="icon-button" aria-label="Notificações">♧<em></em></button><button class="help-button">Ajuda <span>↗</span></button></div>
-        </header>
-        <section class="page-intro" id="visao">
-          <div><div class="eyebrow"><span class="eyebrow-line"></span>PROTÓTIPO OPERACIONAL · DADOS SINTÉTICOS</div><h1>Dados que aproximam<br /><span>pessoas de direitos.</span></h1><p class="intro-copy">Uma visão prática da jornada de atendimento, com sinais para priorizar o próximo passo.</p></div>
-          <div class="intro-actions"><button class="button button-quiet" id="export-btn"><span>↓</span> Exportar dados</button><button class="button button-primary" id="action-btn">Ver plano de ação <span>↗</span></button></div>
-        </section>
-
-        <section class="filter-row" aria-label="Filtros do painel">
-          <div class="filter-context"><span class="filter-icon">⚑</span><span>VISÃO DA OPERAÇÃO</span><span class="filter-divider"></span><span id="updated-label">Atualizado agora</span></div>
-          <div class="filters"><label for="period-select">Período</label><select id="period-select" aria-label="Selecionar período"><option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option><option value="all">Todo o período</option></select><label for="region-select">Região</label><select id="region-select" aria-label="Selecionar região"><option value="all">Todas as regiões</option></select><button id="reset-btn" class="reset-button" title="Limpar filtros" aria-label="Limpar filtros">↺</button></div>
-        </section>
-
-        <section class="kpi-grid" aria-label="Indicadores principais">
-          <article class="kpi-card"><div class="kpi-top"><span>Famílias acompanhadas</span><span class="kpi-icon icon-sage">⌂</span></div><div class="kpi-value" id="kpi-families">—</div><div class="kpi-foot"><span class="kpi-note">na base de demonstração</span><span class="trend-neutral">↗ <b id="kpi-growth">—</b></span></div><div class="mini-sparkline spark-one"></div></article>
-          <article class="kpi-card"><div class="kpi-top"><span>Cadastros completos</span><span class="kpi-icon icon-blue">✓</span></div><div class="kpi-value" id="kpi-complete">—</div><div class="kpi-foot"><span class="kpi-note">documentação validada</span><span class="trend-up">↑ <b id="kpi-complete-rate">—</b></span></div><div class="mini-sparkline spark-two"></div></article>
-          <article class="kpi-card kpi-highlight"><div class="kpi-top"><span>Encaminhamentos pendentes</span><span class="kpi-icon icon-orange">↗</span></div><div class="kpi-value" id="kpi-pending">—</div><div class="kpi-foot"><span class="kpi-note">precisam de próximo passo</span><span class="trend-warning"><i></i> Atenção</span></div><div class="mini-sparkline spark-three"></div></article>
-          <article class="kpi-card"><div class="kpi-top"><span>Tempo médio até retorno</span><span class="kpi-icon icon-violet">◷</span></div><div class="kpi-value"><span id="kpi-days">—</span><small>dias</small></div><div class="kpi-foot"><span class="kpi-note">entre encaminhar e responder</span><span class="trend-up">↓ <b>2 dias</b></span></div><div class="mini-sparkline spark-four"></div></article>
-        </section>
-
-        <section class="chart-grid">
-          <article class="panel trend-panel">
-            <div class="panel-heading"><div><div class="panel-title">Jornada de atendimento <span class="info-dot" title="Contagens sintéticas por mês; as etapas são eventos e não pessoas únicas.">i</span></div><p>Volume mensal em cada etapa do acompanhamento</p></div><button class="more-button" aria-label="Mais opções">•••</button></div>
-            <div class="legend"><span><i class="legend-dot dot-green"></i>Famílias acompanhadas</span><span><i class="legend-dot dot-blue"></i>Cadastros completos</span><span><i class="legend-dot dot-orange"></i>Encaminhamentos</span></div>
-            <div class="chart-wrap"><div class="y-axis"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="line-chart" id="trend-chart" role="img" aria-label="Gráfico de evolução da jornada de atendimento"></div><div class="x-axis" id="trend-labels"></div></div>
-            <div class="chart-footnote"><span class="footnote-bullet">↗</span><span id="trend-insight">Carregando leitura do período…</span></div>
-          </article>
-          <article class="panel regional-panel">
-            <div class="panel-heading"><div><div class="panel-title">Cobertura por região <span class="info-dot" title="Cobertura = cadastros completos ÷ famílias acompanhadas.">i</span></div><p>Famílias com cadastro completo</p></div><button class="more-button" aria-label="Mais opções">•••</button></div>
-            <div class="region-list" id="region-chart"></div>
-            <div class="regional-insight"><div class="insight-icon">✳</div><div><b id="regional-insight-title">Sinal para investigar</b><p id="regional-insight-copy">Selecione uma região para comparar cobertura e pendências.</p></div><span>↗</span></div>
-          </article>
-        </section>
-
-        <section class="lower-grid">
-          <article class="panel service-panel">
-            <div class="panel-heading"><div><div class="panel-title">Demanda por serviço</div><p>Solicitações abertas no período selecionado</p></div><button class="text-link" id="service-details">Detalhes <span>↗</span></button></div>
-            <div class="service-chart" id="service-chart"></div>
-            <div class="service-legend"><span><i class="legend-dot dot-green"></i>Em acompanhamento</span><span><i class="legend-dot dot-muted"></i>Aguardando retorno</span></div>
-          </article>
-          <article class="panel quality-panel" id="qualidade">
-            <div class="panel-heading"><div><div class="panel-title">Saúde da base</div><p>Verificações automáticas de consistência</p></div><span class="quality-score" id="quality-score">—</span></div>
-            <div class="quality-meter"><div id="quality-meter-fill"></div></div>
-            <div class="quality-list"><div><span class="check-icon">✓</span><span>Campos obrigatórios preenchidos</span><b id="quality-required">—</b></div><div><span class="check-icon">✓</span><span>Sem registros duplicados</span><b>100%</b></div><div><span class="warning-icon">!</span><span>Encaminhamentos sem retorno</span><b id="quality-overdue">—</b></div></div>
-            <button class="quality-link" id="quality-details">Ver verificações de qualidade <span>→</span></button>
-          </article>
-        </section>
-
-        <section class="panel priority-panel" id="prioridades">
-          <div class="panel-heading"><div><div class="panel-title">Fila de atenção <span class="priority-badge" id="queue-badge">—</span></div><p>Grupos de casos que podem se beneficiar de uma revisão humana</p></div><button class="text-link" id="view-all">Ver critérios <span>↗</span></button></div>
-          <div class="table-wrap"><table><thead><tr><th>PRIORIDADE</th><th>SINAL IDENTIFICADO</th><th>REGIÃO</th><th>VOLUME</th><th>PRÓXIMO PASSO SUGERIDO</th><th></th></tr></thead><tbody id="priority-table"></tbody></table></div>
-          <div class="table-foot"><span><i></i> Sugestões apoiam a equipe e não substituem análise profissional.</span><button id="queue-export">Baixar fila <span>↓</span></button></div>
-        </section>
-        <footer class="page-footer"><span>Conceito de portfólio por <b>João Luis Feitosa Leite</b></span><span>Dados sintéticos · Sem dados pessoais · v1.0.0</span><a href="https://github.com/joao-luisz/ponte-inclusao-social" target="_blank" rel="noreferrer">Código do projeto ↗</a></footer>
-      </main>
-    </div>
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <dialog id="action-dialog" class="action-dialog"><button class="dialog-close" aria-label="Fechar">×</button><div class="dialog-kicker">PRÓXIMOS PASSOS</div><h2>Da leitura à ação.</h2><p class="dialog-intro">Sugestões baseadas nos sinais do painel. A decisão continua com a equipe responsável.</p><div class="action-steps"><div><span>01</span><div><b>Revisar pendências antigas</b><p>Comece pelos encaminhamentos sem retorno há mais de 15 dias.</p></div><em>Alta</em></div><div><span>02</span><div><b>Validar cadastros incompletos</b><p>Priorize registros com campos obrigatórios ausentes.</p></div><em>Média</em></div><div><span>03</span><div><b>Investigar diferença regional</b><p>Converse com a equipe local antes de redistribuir capacidade.</p></div><em>Média</em></div></div><button class="button button-primary dialog-done">Entendi</button></dialog>
-    <script src="app.js"></script>
-  </body>
 </html>
