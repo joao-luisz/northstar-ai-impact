@@ -26,7 +26,10 @@ function filteredRows() {
     return { week, label: group[0].label, volume, resolution: weighted("resolution"), grounded: weighted("grounded"), handoff: weighted("handoff"), latency: weighted("latency"), modelCost: weighted("modelCost") };
   });
 }
-function average(rows, key) { return rows.length ? rows.reduce((total, row) => total + row[key], 0) / rows.length : 0; }
+function average(rows, key) {
+  const volume = rows.reduce((total, row) => total + row.volume, 0);
+  return volume ? rows.reduce((total, row) => total + row[key] * row.volume, 0) / volume : 0;
+}
 function last(rows, key) { return rows.at(-1)?.[key] || 0; }
 function valueModel(volume, resolution = 0.735, modelCost = 0.12, labor = 3.8) {
   const platform = 8900;
