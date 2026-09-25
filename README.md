@@ -72,7 +72,8 @@ Then run `sql/weekly_product_metrics.sql` to reproduce the weekly weighted metri
 index.html                         dashboard structure
 styles.css                        responsive visual system
 app.js                            filtering, KPI calculations, SVG charts, CSV export
-data/cohort.json                  generated fixture consumed by the dashboard
+data/cohort.js                    generated fixture consumed by the static dashboard
+data/cohort.json                  same fixture as portable JSON
 data/cohort.csv                   same fixture for SQL / BI workflows
 scripts/build_demo_data.py        deterministic data-generation pipeline
 sql/weekly_product_metrics.sql    metric contract and release gate
