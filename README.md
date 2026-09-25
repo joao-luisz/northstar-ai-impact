@@ -2,6 +2,8 @@
 
 **A decision cockpit for the economics and trustworthiness of an AI support copilot.**
 
+**[Open the live dashboard →](https://joao-luisz.github.io/northstar-ai-impact/)**
+
 This portfolio case study gives a product and data team one place to answer: *Should we expand this AI release?* It connects service outcomes, unit economics, response quality and operational guardrails instead of presenting usage volume as proof of value.
 
 > **Data integrity:** Product telemetry and costs in the demo are deterministic synthetic data. They are not results from a real company or a live model. Market context uses published Eurostat statistics. The release thresholds are illustrative product policy choices.
