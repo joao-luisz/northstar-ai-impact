@@ -1,142 +1,152 @@
-/* Ponte uses deterministic, fully synthetic demo data. No personal records are stored. */
-const regions = ["Sertão Central", "Litoral Oeste", "Região Norte", "Vale do Curu", "Serra da Ibiapaba"];
-const services = ["Cadastro e documentação", "Benefícios sociais", "Qualificação", "Atenção à família", "Acesso digital"];
-const months = ["Out", "Nov", "Dez", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set"];
-const base = [54, 58, 61, 59, 66, 71, 74, 78, 81, 86, 91, 96];
-const demo = [];
-for (let m = 0; m < 12; m++) {
-  regions.forEach((region, r) => {
-    const households = Math.max(12, Math.round(base[m] * [0.25, 0.22, 0.2, 0.18, 0.15][r]));
-    const completionRate = [0.79, 0.73, 0.84, 0.68, 0.76][r] + (m * 0.006) - (r === 3 ? 0.012 : 0);
-    const complete = Math.min(households, Math.round(households * completionRate));
-    const pending = Math.max(2, Math.round(households * [0.13, 0.18, 0.1, 0.22, 0.16][r] * (1 - m * 0.018)));
-    services.forEach((service, s) => {
-      const count = Math.max(1, Math.round((households / 5) * [1.1, 0.84, 0.53, 0.72, 0.38][s] * (1 + ((r + s + m) % 3) * 0.08)));
-      demo.push({ month: m, region, households, complete, pending, service, requests: count, open: Math.round(count * [0.32, 0.42, 0.28, 0.47, 0.37][s]), days: 16 + ((r * 3 + m * 2) % 12) });
-    });
-  });
-}
-const queueTemplates = [
-  { priority: "Alta", level: "high", signal: "Encaminhamento sem retorno há +15 dias", region: "Vale do Curu", volume: 18, next: "Confirmar recebimento com a rede" },
-  { priority: "Alta", level: "high", signal: "Cadastro com documentação incompleta", region: "Litoral Oeste", volume: 14, next: "Agendar atualização cadastral" },
-  { priority: "Média", level: "medium", signal: "Demanda por qualificação sem oferta", region: "Sertão Central", volume: 11, next: "Revisar calendário de turmas" },
-  { priority: "Média", level: "medium", signal: "Baixa cobertura de retorno registrado", region: "Vale do Curu", volume: 9, next: "Validar rotina de acompanhamento" },
-  { priority: "Baixa", level: "low", signal: "Registros sem canal de contato preferido", region: "Região Norte", volume: 7, next: "Incluir pergunta no atendimento" },
-  { priority: "Baixa", level: "low", signal: "Variação atípica no volume de demanda", region: "Serra da Ibiapaba", volume: 5, next: "Conferir lote recente de registros" }
-];
-const fmt = new Intl.NumberFormat("pt-BR");
-const periodSelect = document.querySelector("#period-select");
-const regionSelect = document.querySelector("#region-select");
-const regionOrder = regions;
-regions.forEach(region => regionSelect.add(new Option(region, region)));
+let series = [];
+const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const percent = value => `${value.toFixed(1)}%`;
+const byId = id => document.getElementById(id);
+const period = byId("period");
+const segment = byId("segment");
+const slider = byId("volume-slider");
 let activeRows = [];
 let toastTimer;
 
-function notify(message) {
-  const toast = document.querySelector("#toast");
-  toast.textContent = message;
-  toast.classList.add("show");
+function toast(message) {
+  const el = byId("toast");
+  el.textContent = message;
+  el.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
 }
-function selectedData() {
-  const period = periodSelect.value === "all" ? 12 : Number(periodSelect.value);
-  const start = 12 - period;
-  const region = regionSelect.value;
-  return demo.filter(d => d.month >= start && (region === "all" || d.region === region));
-}
-function aggregate(rows) {
-  const byMonth = Array.from({ length: 12 }, (_, i) => ({ month: i, households: 0, complete: 0, pending: 0, days: [] }));
-  const byRegion = Object.fromEntries(regionOrder.map(r => [r, { households: 0, complete: 0, pending: 0 }]));
-  const byService = Object.fromEntries(services.map(s => [s, { requests: 0, open: 0 }]));
-  const seen = new Set();
-  rows.forEach(d => {
-    const key = `${d.month}|${d.region}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      byMonth[d.month].households += d.households;
-      byMonth[d.month].complete += d.complete;
-      byMonth[d.month].pending += d.pending;
-      byMonth[d.month].days.push(d.days);
-      byRegion[d.region].households += d.households;
-      byRegion[d.region].complete += d.complete;
-      byRegion[d.region].pending += d.pending;
-    }
-    byService[d.service].requests += d.requests;
-    byService[d.service].open += d.open;
+function filteredRows() {
+  const duration = period.value === "all" ? 13 : Math.ceil(Number(period.value) / 7);
+  const selected = series.filter(row => segment.value === "all" || row.queue === segment.value);
+  const weeks = [...new Set(selected.map(row => row.week))].sort((a, b) => a - b).slice(-duration);
+  return weeks.map(week => {
+    const group = selected.filter(row => row.week === week);
+    const volume = group.reduce((sum, row) => sum + row.volume, 0);
+    const weighted = key => group.reduce((sum, row) => sum + row[key] * row.volume, 0) / Math.max(1, volume);
+    return { week, label: group[0].label, volume, resolution: weighted("resolution"), grounded: weighted("grounded"), handoff: weighted("handoff"), latency: weighted("latency"), modelCost: weighted("modelCost") };
   });
-  return { byMonth, byRegion, byService };
 }
-function renderTrend(byMonth) {
-  const span = periodSelect.value === "all" ? 12 : Number(periodSelect.value);
-  const points = byMonth.slice(12 - span).filter((_, i) => i % (span > 6 ? 1 : 1) === 0);
-  const max = Math.max(1, ...points.map(d => d.households));
-  const x = i => (points.length === 1 ? 50 : i * 100 / (points.length - 1));
-  const y = v => 92 - (v / max) * 78;
-  const line = key => points.map((d, i) => `${i ? "L" : "M"} ${x(i)} ${y(d[key])}`).join(" ");
-  const area = `${line("households")} L 100 100 L 0 100 Z`;
-  const circles = key => points.map((d, i) => `<circle cx="${x(i)}" cy="${y(d[key])}" r="1.5"/>`).join("");
-  document.querySelector("#trend-chart").innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78a789" stop-opacity=".17"/><stop offset="1" stop-color="#78a789" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#areaFill)"/><path d="${line("households")}" fill="none" stroke="#609477" stroke-width="1.25" vector-effect="non-scaling-stroke"/><path d="${line("complete")}" fill="none" stroke="#799be1" stroke-width="1.15" vector-effect="non-scaling-stroke"/><path d="${line("pending")}" fill="none" stroke="#e7a16b" stroke-width="1.15" vector-effect="non-scaling-stroke" stroke-dasharray="3 2"/>${["households", "complete", "pending"].map((key, i) => `<g fill="${["#609477", "#799be1", "#e7a16b"][i]}">${circles(key)}</g>`).join("")}</svg>`;
-  const labels = points.map(d => `<span>${months[d.month]}</span>`).join("");
-  document.querySelector("#trend-labels").innerHTML = labels;
-  const first = points[0]?.households || 0, last = points.at(-1)?.households || 0;
-  const change = first ? Math.round((last - first) / first * 100) : 0;
-  document.querySelector("#trend-insight").textContent = change >= 0 ? `O volume acompanhado cresceu ${change}% no recorte. Confira se a capacidade de retorno acompanhou a procura.` : `O volume acompanhado caiu ${Math.abs(change)}% no recorte. Investigue sazonalidade antes de realocar equipe.`;
+function average(rows, key) { return rows.length ? rows.reduce((total, row) => total + row[key], 0) / rows.length : 0; }
+function last(rows, key) { return rows.at(-1)?.[key] || 0; }
+function valueModel(volume, resolution = 0.735, modelCost = 0.12, labor = 3.8) {
+  const platform = 8900;
+  const aiCost = volume * (modelCost + (1 - resolution) * labor) + platform;
+  const humanBaseline = volume * labor;
+  return { humanBaseline, aiCost, net: humanBaseline - aiCost };
+}
+function percentChange(current, previous, invert = false) {
+  if (!previous) return "—";
+  const delta = ((current - previous) / previous) * 100;
+  const beneficial = invert ? delta < 0 : delta > 0;
+  return `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% ${beneficial ? "vs prior" : "vs prior"}`;
+}
+function setDelta(id, text, inverse = false, current = 1, previous = 1) {
+  const el = byId(id);
+  el.textContent = text;
+  el.classList.toggle("negative", inverse ? current > previous : current < previous);
+  el.classList.toggle("positive", inverse ? current <= previous : current >= previous);
+}
+function chartLine(rows, key, top, bottom, min = 70, max = 100) {
+  const width = 800;
+  const x = index => rows.length === 1 ? width / 2 : index * width / (rows.length - 1);
+  const y = value => bottom - (value - min) / (max - min) * (bottom - top);
+  const points = rows.map((row, index) => [x(index), y(row[key])]);
+  if (!points.length) return "";
+  return points.map(([px, py], index) => `${index ? "L" : "M"} ${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
+}
+function renderChart(rows) {
+  const svg = byId("trend-svg");
+  const resolution = chartLine(rows, "resolution", 4, 218, 70, 100);
+  const grounded = chartLine(rows, "grounded", 4, 218, 70, 100);
+  const yOf = v => 218 - (v - 70) / 30 * 214;
+  const thresh = yOf(90);
+  const lastPoint = (key, value) => {
+    const x = rows.length <= 1 ? 400 : 800;
+    return `<circle cx="${x}" cy="${yOf(value)}" r="4" fill="white" stroke="${key}" stroke-width="2.5"/>`;
+  };
+  svg.innerHTML = rows.length ? `<path d="${resolution}" fill="none" stroke="#36b995" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="${grounded}" fill="none" stroke="#7395ec" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="0" y1="${thresh}" x2="800" y2="${thresh}" stroke="#c8d0db" stroke-width="1" stroke-dasharray="5 5"/>${lastPoint("#36b995", last(rows, "resolution"))}${lastPoint("#7395ec", last(rows, "grounded"))}` : "";
+  byId("x-labels").innerHTML = rows.map((row, index) => `<span>${rows.length > 7 && index % 2 ? "" : row.label}</span>`).join("");
+}
+function renderEconomics(volume, resolution, modelCost) {
+  const { humanBaseline, aiCost, net } = valueModel(volume, resolution / 100, modelCost);
+  byId("baseline-value").textContent = money.format(humanBaseline);
+  byId("ai-runrate").textContent = money.format(aiCost);
+  byId("saved-value").textContent = money.format(net);
+  byId("scenario-value").textContent = money.format(net);
+  const max = 80000 * 3.8;
+  const heights = [humanBaseline, aiCost, Math.max(0, net)].map(value => Math.min(100, value / max * 100));
+  byId("bars-wrap").innerHTML = `<div class="bar-group"><i class="bar baseline" style="height:${heights[0]}%"></i><span class="bar-label">Now</span></div><div class="bar-group"><i class="bar ai" style="height:${heights[1]}%"></i><span class="bar-label">AI assist</span></div><div class="bar-group"><i class="bar ai" style="height:${heights[2]}%"></i><span class="bar-label">Value</span></div>`;
+  byId("volume-output").textContent = new Intl.NumberFormat("en-US").format(volume);
+  const range = (volume - 5000) / 75000;
+  slider.style.background = `linear-gradient(90deg,#39ba97 ${range * 100}%,#e8edf2 ${range * 100}%)`;
 }
 function render() {
-  activeRows = selectedData();
-  const { byMonth, byRegion, byService } = aggregate(activeRows);
-  const scopedMonths = byMonth.filter(d => d.households > 0);
-  const families = scopedMonths.reduce((sum, d) => sum + d.households, 0);
-  const complete = scopedMonths.reduce((sum, d) => sum + d.complete, 0);
-  const pending = scopedMonths.reduce((sum, d) => sum + d.pending, 0);
-  const completeRate = families ? Math.round(complete / families * 100) : 0;
-  const avgDays = Math.round(scopedMonths.reduce((sum, d) => sum + d.days.reduce((a, b) => a + b, 0), 0) / Math.max(1, scopedMonths.reduce((sum, d) => sum + d.days.length, 0)));
-  document.querySelector("#kpi-families").textContent = fmt.format(families);
-  document.querySelector("#kpi-complete").textContent = `${completeRate}%`;
-  document.querySelector("#kpi-growth").textContent = `${Math.max(3, Math.round(6 + completeRate / 12))}%`;
-  document.querySelector("#kpi-complete-rate").textContent = `${Math.max(1, completeRate - 68)} p.p.`;
-  document.querySelector("#kpi-pending").textContent = fmt.format(pending);
-  document.querySelector("#kpi-days").textContent = fmt.format(avgDays);
-  renderTrend(byMonth);
+  activeRows = filteredRows();
+  const res = average(activeRows, "resolution");
+  const grounded = average(activeRows, "grounded");
+  const handoff = average(activeRows, "handoff");
+  const latency = average(activeRows, "latency");
+  const modelCost = average(activeRows, "modelCost") || 0.12;
+  const totalVolume = activeRows.reduce((sum, row) => sum + row.volume, 0);
+  const latest = activeRows.at(-1);
+  const prior = activeRows.at(-2) || latest;
+  const scenarioVolume = Number(slider.value);
+  const business = valueModel(scenarioVolume, res / 100, modelCost);
+  const costPerCase = business.aiCost / Math.max(1, scenarioVolume * res / 100);
+  const previousUnitCost = prior ? valueModel(scenarioVolume, prior.resolution / 100, prior.modelCost).aiCost / Math.max(1, scenarioVolume * prior.resolution / 100) : costPerCase;
+  const quality = Math.round(grounded * .55 + res * .3 + (100 - handoff) * .15);
 
-  const ordered = regionOrder.map(name => ({ name, ...byRegion[name], rate: byRegion[name].households ? Math.round(byRegion[name].complete / byRegion[name].households * 100) : 0 })).sort((a, b) => b.rate - a.rate);
-  const highest = Math.max(1, ...ordered.map(d => d.rate));
-  document.querySelector("#region-chart").innerHTML = ordered.map(r => `<div class="region-row"><span class="region-name" title="${r.name}">${r.name}</span><div class="bar-track"><div class="bar-fill" style="width:${r.rate / highest * 100}%"></div></div><span class="region-value">${r.rate}%</span></div>`).join("");
-  const lowest = ordered.at(-1);
-  document.querySelector("#regional-insight-title").textContent = lowest?.name === regionSelect.value ? "Compare antes de agir" : `Ponto de atenção · ${lowest?.name || "—"}`;
-  document.querySelector("#regional-insight-copy").textContent = regionSelect.value === "all" ? `${lowest?.rate || 0}% de cadastros completos. A diferença pode refletir acesso, equipe ou registro.` : `Veja se a cobertura de ${lowest?.rate || 0}% acompanha a demanda e a capacidade local.`;
+  byId("kpi-resolution").textContent = percent(res);
+  byId("kpi-cost").textContent = `$${costPerCase.toFixed(2)}`;
+  byId("kpi-grounded").textContent = percent(grounded);
+  byId("kpi-value").textContent = money.format(business.net);
+  setDelta("delta-resolution", percentChange(last(activeRows, "resolution"), prior?.resolution), false, last(activeRows, "resolution"), prior?.resolution);
+  setDelta("delta-cost", percentChange(costPerCase, previousUnitCost, true), true, costPerCase, previousUnitCost);
+  setDelta("delta-grounded", percentChange(last(activeRows, "grounded"), prior?.grounded), false, latest?.grounded, prior?.grounded);
+  byId("period-label").textContent = period.value === "all" ? "All time" : `Last ${period.value} days`;
+  renderChart(activeRows);
 
-  const serviceEntries = Object.entries(byService).sort((a, b) => b[1].requests - a[1].requests);
-  const largest = Math.max(1, ...serviceEntries.map(([, v]) => v.requests));
-  document.querySelector("#service-chart").innerHTML = serviceEntries.map(([name, v]) => `<div class="service-row"><span class="service-name" title="${name}">${name}</span><div class="stacked-bar"><i style="width:${Math.min(100, v.requests / largest * 100)}%"></i><i style="width:${v.requests ? Math.min(55, v.open / v.requests * 100) : 0}%"></i></div><span class="service-total">${fmt.format(v.requests)}</span></div>`).join("");
-  const required = Math.max(83, Math.min(99, completeRate + 8));
-  document.querySelector("#quality-score").textContent = `${required}/100`;
-  document.querySelector("#quality-meter-fill").style.width = `${required}%`;
-  document.querySelector("#quality-required").textContent = `${required}%`;
-  document.querySelector("#quality-overdue").textContent = fmt.format(Math.round(pending * .34));
-  const queue = queueTemplates.map(q => ({ ...q, volume: Math.max(1, Math.round(q.volume * (families / 520))) })).filter(q => regionSelect.value === "all" || q.region === regionSelect.value).slice(0, 4);
-  document.querySelector("#priority-count").textContent = String(queue.length).padStart(2, "0");
-  document.querySelector("#queue-badge").textContent = `${queue.length} grupos`;
-  document.querySelector("#priority-table").innerHTML = queue.map(q => `<tr><td><span class="priority-label ${q.level}">${q.priority}</span></td><td>${q.signal}</td><td>${q.region}</td><td class="volume-cell">${fmt.format(q.volume)}</td><td class="next-step">${q.next}</td><td class="row-arrow">↗</td></tr>`).join("") || `<tr><td colspan="6">Nenhum grupo de atenção neste recorte.</td></tr>`;
+  const resDiff = last(activeRows, "resolution") - (activeRows[0]?.resolution || 0);
+  const trustDiff = last(activeRows, "grounded") - (activeRows[0]?.grounded || 0);
+  byId("trend-insight").textContent = `AI resolution is up ${resDiff.toFixed(1)} pts in this cohort while grounded answers ${trustDiff >= 0 ? "improved" : "slipped"} ${Math.abs(trustDiff).toFixed(1)} pts. Keep the 90% quality floor in the release gate.`;
+
+  byId("quality-score").textContent = quality;
+  document.querySelector(".ring-value").style.strokeDashoffset = `${270 * (1 - quality / 100)}`;
+  const ready = grounded >= 90 && handoff <= 35 && latency <= 2;
+  const status = byId("gate-status");
+  status.classList.toggle("hold", !ready);
+  status.innerHTML = `<i></i>${ready ? "READY TO SCALE" : "HOLD RELEASE"}`;
+  byId("gate-title").textContent = ready ? "Guardrails passed" : "Quality needs attention";
+  byId("gate-copy").textContent = ready ? "Canary meets the demo thresholds for trust, handoff and speed." : "Review the failing guardrail before expanding traffic.";
+  const guard = [Math.min(100, grounded), Math.min(100, 100 - handoff), Math.max(0, 100 - latency / 3 * 100)];
+  ["grounded", "handoff", "latency"].forEach((key, index) => byId(`guard-${key}`).style.width = `${guard[index]}%`);
+  byId("guard-grounded-value").textContent = percent(grounded);
+  byId("guard-handoff-value").textContent = percent(handoff);
+  byId("guard-latency-value").textContent = `${latency.toFixed(2)}s`;
+  renderEconomics(scenarioVolume, res, modelCost);
+  byId("bars-wrap").setAttribute("aria-label", `Synthetic 30 day projection across ${new Intl.NumberFormat("en-US").format(scenarioVolume)} cases`);
+  byId("report-button").setAttribute("aria-label", `Current cohort: ${Math.round(totalVolume).toLocaleString()} cases`);
 }
-function exportCsv() {
-  const rows = selectedData();
-  const csv = ["mes,regiao,servico,solicitacoes_abertas,em_acompanhamento,familias,cadastros_completos,encaminhamentos_pendentes", ...rows.map(d => [months[d.month], d.region, d.service, d.requests, d.open, d.households, d.complete, d.pending].join(","))].join("\n");
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob); link.download = "ponte-dados-sinteticos.csv"; link.click(); URL.revokeObjectURL(link.href);
-  notify("CSV de demonstração baixado.");
+function exportRows() {
+  const csv = ["week,queue,volume,ai_resolution_pct,grounded_answer_pct,handoff_pct,p95_latency_seconds,model_cost_per_case", ...series.filter(row => activeRows.some(active => active.week === row.week) && (segment.value === "all" || row.queue === segment.value)).map(row => [row.label, row.queue, row.volume, row.resolution, row.grounded, row.handoff, row.latency, row.modelCost].join(","))].join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const anchor = document.createElement("a"); anchor.href = url; anchor.download = "northstar-demo-cohort.csv"; anchor.click(); URL.revokeObjectURL(url);
+  toast("Filtered cohort exported as CSV");
 }
-periodSelect.addEventListener("change", render);
-regionSelect.addEventListener("change", render);
-document.querySelector("#reset-btn").addEventListener("click", () => { periodSelect.value = "12"; regionSelect.value = "all"; render(); notify("Filtros restaurados."); });
-document.querySelector("#export-btn").addEventListener("click", exportCsv);
-document.querySelector("#queue-export").addEventListener("click", exportCsv);
-document.querySelector("#action-btn").addEventListener("click", () => document.querySelector("#action-dialog").showModal());
-document.querySelector(".dialog-close").addEventListener("click", () => document.querySelector("#action-dialog").close());
-document.querySelector(".dialog-done").addEventListener("click", () => document.querySelector("#action-dialog").close());
-document.querySelector("#service-details").addEventListener("click", () => notify("Gráfico detalhado com dados sintéticos de demonstração."));
-document.querySelector("#quality-details").addEventListener("click", () => notify("Verificações: completude, duplicidade e tempo de retorno."));
-document.querySelector("#view-all").addEventListener("click", () => notify("Os grupos são agregados; nenhum caso individual é exibido."));
-render();
+period.addEventListener("change", render);
+segment.addEventListener("change", render);
+slider.addEventListener("input", render);
+byId("reset").addEventListener("click", () => { period.value = "90"; segment.value = "all"; slider.value = "25000"; render(); toast("Filters reset"); });
+byId("export-button").addEventListener("click", exportRows);
+byId("report-button").addEventListener("click", () => document.getElementById("market").scrollIntoView({ behavior: "smooth" }));
+byId("gate-button").addEventListener("click", () => toast(byId("gate-title").textContent + " · review quality, handoff and p95 latency before increasing traffic."));
+fetch("data/cohort.json").then(response => {
+  if (!response.ok) throw new Error("Could not load the demo cohort");
+  return response.json();
+}).then(payload => { series = payload.rows; render(); }).catch(() => {
+  series = Array.from({ length: 13 }, (_, index) => {
+    const wave = Math.sin(index * .78) * 1.25;
+    return { week: index, label: `W${String(index + 1).padStart(2, "0")}`, volume: 4150 + index * 126, resolution: 62.5 + index * .88 + wave, grounded: 94.2 - index * .09 + Math.sin(index * .62) * .42, handoff: 37.8 - index * .69 + Math.cos(index * .61) * .75, latency: 1.94 - index * .025 + Math.cos(index * .82) * .07, modelCost: .14 - index * .001 + Math.sin(index * .5) * .008, queue: "all" };
+  });
+  render();
+});
