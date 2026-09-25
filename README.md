@@ -76,7 +76,7 @@ data/cohort.json                  generated fixture consumed by the dashboard
 data/cohort.csv                   same fixture for SQL / BI workflows
 scripts/build_demo_data.py        deterministic data-generation pipeline
 sql/weekly_product_metrics.sql    metric contract and release gate
-.github/workflows/pages.yml       data check and GitHub Pages deployment
+.github/workflows/checks.yml      Python data-contract checks on each push
 ```
 
 ## Next production steps
