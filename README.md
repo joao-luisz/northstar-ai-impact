@@ -1,88 +1,92 @@
-# Ponte · Inteligência operacional para inclusão social
+# NORTHSTAR · AI impact observatory
 
-**Ponte** é um protótipo interativo de analytics para ajudar equipes de atendimento social a enxergar gargalos na jornada, acompanhar a qualidade dos registros e escolher onde investigar primeiro.
+**A decision cockpit for the economics and trustworthiness of an AI support copilot.**
 
-> Projeto de portfólio criado por João Luis Feitosa Leite. Todos os dados deste protótipo são sintéticos e determinísticos. Não representam Uruburetama, qualquer outro município ou pessoas reais.
+This portfolio case study gives a product and data team one place to answer: *Should we expand this AI release?* It connects service outcomes, unit economics, response quality and operational guardrails instead of presenting usage volume as proof of value.
 
-## Demonstração
+> **Data integrity:** Product telemetry and costs in the demo are deterministic synthetic data. They are not results from a real company or a live model. Market context uses published Eurostat statistics. The release thresholds are illustrative product policy choices.
 
-**[Abrir o dashboard ao vivo](https://joao-luisz.github.io/ponte-inclusao-social/)** · **[Ver o código no GitHub](https://github.com/joao-luisz/ponte-inclusao-social)**
+## Why this problem
 
-O projeto não exige instalação, banco de dados, conta ou serviço externo. O gráfico e os indicadores são calculados localmente a partir dos registros demonstrativos em `app.js`.
+- **Adoption is growing, outcomes still need proof.** Eurostat reports that 19.95% of EU enterprises used AI in 2025, up 6.47 percentage points year over year. Adoption ranged from 17% of small enterprises to 55.03% of large enterprises.
+- **Trust is a production concern.** In dbt Labs' 2026 analytics engineering survey, 71% of respondents were concerned about hallucinated or incorrect data reaching stakeholders; 83% put trust in data among their priorities.
+- **Market fit is broader than one region.** AI-assisted customer support is a recognizable SaaS use case in the US and Europe, with a concrete operating decision and metrics that transfer across industries.
 
-## O problema
+Sources and definitions: [Eurostat: AI use in enterprises](https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Use_of_artificial_intelligence_in_enterprises), [dbt Labs: 2026 State of Analytics Engineering](https://www.getdbt.com/resources/state-of-analytics-engineering-2026).
 
-Uma planilha pode guardar centenas de atendimentos e ainda deixar a equipe sem respostas rápidas para perguntas operacionais:
+## What the dashboard does
 
-- Em qual etapa o acompanhamento está acumulando pendências?
-- A documentação está completa antes do próximo encaminhamento?
-- Onde a cobertura difere entre regiões e quais hipóteses precisam ser verificadas?
-- Que verificações simples podem melhorar a confiança na base?
+1. **Measures outcomes:** AI resolution, grounded answer rate and cost per resolved case.
+2. **Shows the trade-off:** weekly changes in resolution vs. answer grounding, with a 90% quality floor.
+3. **Gates a release:** compares grounded answers, human handoff and p95 latency with explicit thresholds.
+4. **Models unit economics:** compares estimated AI-assisted cost with a human-only baseline and lets the viewer change monthly case volume.
+5. **Adds market context:** displays sourced EU enterprise AI adoption statistics alongside the simulated operational data.
+6. **Supports inspection:** filter by period and support queue, then export the filtered cohort to CSV.
 
-Ponte organiza essas perguntas em um painel único. O objetivo é reduzir o tempo entre localizar um sinal, validar sua causa com a equipe e definir uma ação responsável.
+## Tech stack
 
-## Como usar o painel
+| Layer | Technology | Why it is here |
+| --- | --- | --- |
+| Interactive web dashboard | HTML, CSS, JavaScript, SVG | Lightweight, responsive, accessible, deployable as a static GitHub Pages site |
+| Data preparation | Python 3, standard library | Reproducibly generates the synthetic cohort and web-ready JSON / CSV |
+| Metric layer | SQL | Documents weighted metrics and release-gate definitions in a queryable form |
+| Automation | GitHub Actions | Regenerates the demo dataset and checks the Python pipeline on each push |
+| Hosting | GitHub Pages | Public, low-friction portfolio demo |
 
-1. Filtre por período e região para comparar os recortes.
-2. Leia a jornada mensal e compare famílias acompanhadas, registros completos e encaminhamentos.
-3. Use cobertura regional e demanda por serviço como sinais para investigação.
-4. Confira completude, duplicidade e tempo de retorno na seção de qualidade.
-5. Revise a fila agregada de atenção e exporte o recorte em CSV.
+**Why Python and SQL:** the Stack Overflow Developer Survey 2025 describes Python's year-over-year usage increase as 7 percentage points and calls out its role in AI, data science and backend work. GitHub's Octoverse 2025 reports TypeScript became the most-used language on GitHub in August 2025. Those are usage signals, not a direct count of job-posting requirements. This iteration focuses on the Python + SQL data analyst foundation; a React + TypeScript client and dbt / warehouse adapter are the next production-style extension.
 
-Os indicadores da fila são **grupos agregados para demonstração**. O painel não classifica indivíduos nem decide elegibilidade a benefícios.
+Sources: [Stack Overflow Developer Survey 2025](https://survey.stackoverflow.co/2025/technology), [GitHub Octoverse 2025](https://github.blog/news-insights/octoverse/typescript-python-and-the-ai-feedback-loop-changing-software-development/).
 
-## Decisões de produto e análise
+## Metric definitions
 
-- **Ação antes de volume:** cada gráfico vem acompanhado de uma pergunta ou próximo passo investigável.
-- **Contexto antes de comparação:** diferenças regionais aparecem como sinais, não como nota de desempenho. Cobertura baixa pode ter várias causas e requer conversa com a equipe local.
-- **Privacidade por padrão:** não existem nomes, CPFs, endereços ou registros individuais. Os dados demonstrativos são agregados por mês, região e tipo de serviço.
-- **Sem decisões automatizadas:** sugestões apoiam profissionais e não substituem análise humana.
-- **Exportação simples:** CSV permite conferir e reutilizar o recorte sem depender do painel.
+| Metric | Definition in the demo |
+| --- | --- |
+| AI resolution rate | Cases resolved without an agent / eligible AI cases |
+| Grounded answer rate | Responses passing the demo's grounding check / AI responses |
+| Human handoff rate | AI cases escalated to an agent / eligible AI cases |
+| Cost per case | Model cost + human handling cost for unresolved cases + monthly platform cost allocation |
+| Net monthly value | Human-only baseline cost − AI-assisted cost estimate |
+| Release gate | Grounded answers ≥ 90%, handoff ≤ 35%, p95 latency ≤ 2 seconds |
 
-## Dados e limitações
+Thresholds and monetary assumptions are configurable demo assumptions, not universal benchmarks or advice to deploy an AI system.
 
-O conjunto é sintético e gerado em `app.js` com uma regra determinística. Cada combinação de mês e região guarda contagens de acompanhamento, completude e pendências; cada tipo de serviço acrescenta volumes de solicitações em acompanhamento e aguardando retorno. Os números variam de forma controlada para permitir filtros, comparações e testes visuais reproduzíveis.
-
-Este protótipo **não deve ser usado para gestão real**, não é uma avaliação de política pública e não contém estimativas oficiais. Os dados não foram extraídos do CadÚnico nem de sistemas governamentais. Para uso real, seriam necessários autorização institucional, definição de finalidade, validação por profissionais, documentação da origem, controle de acesso, minimização de dados, avaliação de risco e revisão jurídica e de privacidade.
-
-## Tecnologias
-
-- HTML semântico e acessível
-- CSS responsivo, sem framework
-- JavaScript puro para filtros, agregações, gráficos SVG e exportação CSV
-- Dados locais sintéticos; sem dependências ou chamadas de API
-
-## Rodar localmente
-
-Como é uma página estática, basta abrir `index.html`. Para servir por HTTP:
+## Run locally
 
 ```bash
-python3 -m http.server 8000
+python scripts/build_demo_data.py
+python -m http.server 8000
 ```
 
-Depois, acesse `http://localhost:8000` e abra a pasta do projeto.
+Open `http://localhost:8000`. The SQL model can be run in DuckDB from the project root:
 
-## Estrutura
+```sql
+-- In a DuckDB shell or notebook
+SELECT * FROM read_csv_auto('data/cohort.csv') LIMIT 10;
+```
+
+Then run `sql/weekly_product_metrics.sql` to reproduce the weekly weighted metrics and release gate.
+
+## Repository map
 
 ```text
-ponte-inclusao-social/
-├── index.html    # interface e estrutura semântica
-├── styles.css    # identidade visual e comportamento responsivo
-├── app.js        # dados sintéticos e lógica analítica
-└── README.md     # contexto, método e limitações
+index.html                         dashboard structure
+styles.css                        responsive visual system
+app.js                            filtering, KPI calculations, SVG charts, CSV export
+data/cohort.json                  generated fixture consumed by the dashboard
+data/cohort.csv                   same fixture for SQL / BI workflows
+scripts/build_demo_data.py        deterministic data-generation pipeline
+sql/weekly_product_metrics.sql    metric contract and release gate
+.github/workflows/pages.yml       data check and GitHub Pages deployment
 ```
 
-## Próximos passos para uma versão real
+## Next production steps
 
-1. Validar as perguntas de gestão em entrevistas com equipes de atendimento.
-2. Definir dicionário de dados, periodicidade e responsáveis pela atualização.
-3. Adicionar testes de consistência e reconciliação com a fonte autorizada.
-4. Construir uma camada de dados com acesso por perfil e trilha de auditoria.
-5. Avaliar acessibilidade com usuários e testar em telas pequenas.
-6. Revisar métricas e alertas com profissionais antes de colocá-los em produção.
+- Replace simulated support telemetry with privacy-reviewed event data.
+- Store event-level metrics in a warehouse; add dbt models and tests for freshness, uniqueness, and metric semantics.
+- Connect to a versioned offline evaluation set and compare releases before the canary gate.
+- Add model-provider cost and latency telemetry with dated price assumptions.
+- Extend the frontend in React + TypeScript once the product workflow is validated.
 
-## Sobre o autor
+## Author
 
-**João Luis Feitosa Leite** trabalha na interseção entre dados, operação e produto. Este case demonstra como transformar uma necessidade operacional em indicadores compreensíveis, escolhas de interface e próximos passos que preservam o julgamento humano.
-
-**Competências demonstradas:** analytics de produto, definição de métricas, qualidade de dados, visualização, UX de dashboards, comunicação de insights e atenção à privacidade.
+**João Luis F. Leite** · Data Analyst · SQL, Python, Power BI · Data Quality, ETL/ELT, Automation & AI
