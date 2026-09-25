@@ -6,7 +6,9 @@
 
 ## Demonstração
 
-Abra `index.html` no navegador. O projeto não exige instalação, banco de dados, conta ou serviço externo. O gráfico e os indicadores são calculados localmente a partir dos registros demonstrativos em `app.js`.
+**[Abrir o dashboard ao vivo](https://joao-luisz.github.io/ponte-inclusao-social/)** · **[Ver o código no GitHub](https://github.com/joao-luisz/ponte-inclusao-social)**
+
+O projeto não exige instalação, banco de dados, conta ou serviço externo. O gráfico e os indicadores são calculados localmente a partir dos registros demonstrativos em `app.js`.
 
 ## O problema
 
@@ -63,7 +65,7 @@ Depois, acesse `http://localhost:8000` e abra a pasta do projeto.
 ## Estrutura
 
 ```text
-ponte-inclusao-dashboard/
+ponte-inclusao-social/
 ├── index.html    # interface e estrutura semântica
 ├── styles.css    # identidade visual e comportamento responsivo
 ├── app.js        # dados sintéticos e lógica analítica
